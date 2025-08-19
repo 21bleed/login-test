@@ -15,5 +15,7 @@
        <input type="submit" value="Login">
    </fieldset>
 </form>
+<img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSjw2xfEfIVI05AIvM78gs4PZj7UR9ov0Pl7xuPkoNItEOsUC9IvLbYNRHEFaPOtMts__XNb-nbw_2qWQk_WbY9PfMs4Qi_hpLwS1Ywxws" alt="burger">
+<img src="https://i.makeagif.com/media/5-04-2023/6N8mA2.gif" alt="car">
 </body>
 </html>
