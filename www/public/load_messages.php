@@ -1,21 +1,17 @@
 <?php
 session_start();
-if(!isset($_SESSION['user_id'])) exit;
+require 'db.php';
 
-$db = new PDO('mysql:host=mariadb;dbname=Users;charset=utf8', 'pma', '12345');
-
-// Load last 50 public messages
-$stmt = $db->prepare("
-    SELECT m.*, u.username AS sender_name 
-    FROM messages m 
-    LEFT JOIN users u ON m.user_id = u.id 
-    WHERE m.recipient_id IS NULL
-    ORDER BY m.created_at ASC
-    LIMIT 50
-");
+$stmt = $db->prepare("SELECT messages.message, users.username 
+                      FROM messages 
+                      JOIN users ON messages.user_id = users.id 
+                      ORDER BY messages.id ASC");
 $stmt->execute();
 $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-foreach($messages as $msg){
-    echo "<div><b>".htmlspecialchars($msg['sender_name'])."</b>: ".htmlspecialchars($msg['message'])."</div>";
+foreach ($messages as $msg) {
+    $username = isset($msg['username']) ? htmlspecialchars($msg['username']) : 'Unknown';
+    $message = isset($msg['message']) ? htmlspecialchars($msg['message']) : '';
+    echo "<p><strong>{$username}</strong>: {$message}</p>";
 }
+?>
