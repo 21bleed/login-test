@@ -2,18 +2,20 @@
 session_start();
 require 'db.php';
 
-if (!isset($_SESSION['user_id'])) exit;
+if (!isset($_SESSION['user_id'])) {
+    echo "Not logged in";
+    exit;
+}
 
-$user_id = $_SESSION['user_id'];
-$message = trim($_POST['message'] ?? '');
-$receiver_id = !empty($_POST['receiver_id']) ? $_POST['receiver_id'] : null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $message = trim($_POST['message']);
+    $receiver_id = !empty($_POST['receiver_id']) ? $_POST['receiver_id'] : null;
+    $user_id = $_SESSION['user_id'];
 
-if ($message !== '') {
-    $stmt = $db->prepare("INSERT INTO messages (user_id, receiver_id, message) VALUES (:user_id, :receiver_id, :message)");
-    $stmt->execute([
-        ':user_id' => $user_id,
-        ':receiver_id' => $receiver_id,
-        ':message' => $message
-    ]);
+    if ($message !== "") {
+        $stmt = $pdo->prepare("INSERT INTO messages (user_id, receiver_id, message, created_at) VALUES (?, ?, ?, NOW())");
+        $stmt->execute([$user_id, $receiver_id, $message]);
+        echo "Message sent";
+    }
 }
 ?>
