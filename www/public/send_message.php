@@ -1,13 +1,19 @@
 <?php
 session_start();
-if(!isset($_SESSION['username'])) exit;
+require 'db.php';
 
-require_once "db.php";
+if (!isset($_SESSION['user_id'])) exit;
 
-if(isset($_POST['message'])){
-    $msg = trim($_POST['message']);
-    if($msg !== ""){
-        $stmt = $db->prepare("INSERT INTO messages (sender, message, private_to) VALUES (:sender, :msg, NULL)");
-        $stmt->execute([':sender' => $_SESSION['username'], ':msg' => $msg]);
-    }
+$user_id = $_SESSION['user_id'];
+$message = trim($_POST['message'] ?? '');
+$receiver_id = !empty($_POST['receiver_id']) ? $_POST['receiver_id'] : null;
+
+if ($message !== '') {
+    $stmt = $db->prepare("INSERT INTO messages (user_id, receiver_id, message) VALUES (:user_id, :receiver_id, :message)");
+    $stmt->execute([
+        ':user_id' => $user_id,
+        ':receiver_id' => $receiver_id,
+        ':message' => $message
+    ]);
 }
+?>
