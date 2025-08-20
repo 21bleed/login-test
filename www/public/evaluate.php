@@ -3,8 +3,13 @@ session_start();
 require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
+    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
+    $password = $_POST['password'] ?? '';
+
+    if ($username === '' || $password === '') {
+        echo "Username and password are required.";
+        exit;
+    }
 
     $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
     $stmt->execute([$username]);

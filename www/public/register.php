@@ -11,26 +11,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo "User registered. <a href='index.php'>Login here</a>";
 }
 ?>
-
-
-<!doctype html>
-<html lang="sv">
+<!DOCTYPE html>
+<html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body { font-family: Arial; background:#f5f5f5; display:flex; flex-direction:column; align-items:center; padding:20px; }
-form { background:#fff; padding:20px; border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.1); width:100%; max-width:400px; }
-input { width:100%; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc; }
-input[type="submit"] { background:#4CAF50; color:white; border:none; cursor:pointer; }
-</style>
+    <meta charset="UTF-8">
+    <title>Register</title>
 </head>
 <body>
-<h1>Register</h1>
-<form method="post">
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <input type="submit" value="Register">
-</form>
-<a href="index.php">Back to Login</a>
+    <h2>Register</h2>
+    <form action="register.php" method="post">
+        <label>Username:</label>
+        <input type="text" name="username" required><br><br>
+        <label>Password:</label>
+        <input type="password" name="password" required><br><br>
+        <button type="submit">Register</button>
+    </form>
 </body>
 </html>
