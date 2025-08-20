@@ -1,54 +1,99 @@
 <?php
 session_start();
-require 'db.php';
-
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+if(!isset($_SESSION['user_id'])) {
+    header('Location: index.php');
     exit;
 }
 
-// Send message
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $message = $_POST['message'] ?? '';
-    if ($message !== '') {
-        $stmt = $db->prepare("INSERT INTO messages (user_id, username, message) VALUES (?, ?, ?)");
-        $stmt->execute([$_SESSION['user_id'], $_SESSION['username'], $message]);
-    }
-}
+// Connect to database
+$db = new PDO('mysql:host=mariadb;dbname=Users;charset=utf8', 'pma', '12345');
 
-// Fetch messages
-$stmt = $db->query("SELECT username, message, created_at FROM messages ORDER BY created_at ASC");
-$messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
-<!doctype html>
-<html lang="sv">
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body { font-family: Arial; background:#f5f5f5; display:flex; flex-direction:column; align-items:center; padding:20px; }
-#chat-box { width:100%; max-width:500px; height:400px; border:1px solid #ccc; overflow-y:scroll; background:#fff; padding:10px; margin-bottom:10px; border-radius:10px; }
-form { display:flex; width:100%; max-width:500px; }
-input[type="text"] { flex:1; padding:10px; border-radius:5px; border:1px solid #ccc; }
-input[type="submit"] { padding:10px 20px; border:none; background:#4CAF50; color:white; border-radius:5px; cursor:pointer; }
-</style>
-<script>
-function reloadMessages() {
-    fetch('messages.php')
-    .then(response => response.text())
-    .then(html => {
-        document.getElementById('chat-box').innerHTML = html;
-    });
+// Delete old messages older than 7 days
+$db->exec("DELETE FROM messages WHERE created_at < NOW() - INTERVAL 7 DAY");
+
+// Handle message sending
+if(isset($_POST['message']) && $_POST['message'] != '') {
+    $message = $_POST['message'];
+    $recipient_id = $_POST['recipient_id'] ?? NULL;
+
+    $stmt = $db->prepare("INSERT INTO messages (user_id, username, message, recipient_id) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$_SESSION['user_id'], $_SESSION['username'], $message, $recipient_id]);
 }
-setInterval(reloadMessages, 1000);
-window.onload = reloadMessages;
-</script>
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+    <style>
+        #chatBox {
+            border:1px solid #ccc; 
+            padding:10px; 
+            height:400px; 
+            overflow-y:scroll;
+            background:#f9f9f9;
+        }
+        .message {
+            margin-bottom:8px;
+        }
+        .private {
+            background:#ffe0e0;
+            padding:4px;
+            border-radius:4px;
+        }
+        form {
+            margin-top:10px;
+        }
+    </style>
 </head>
 <body>
-<h1>Chat Room</h1>
-<div id="chat-box"></div>
-<form method="post">
-    <input type="text" name="message" placeholder="Write your message" required>
-    <input type="submit" value="Send">
+<h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></h2>
+
+<div id="chatBox"></div>
+
+<form id="chatForm" method="post">
+    <input type="text" name="message" placeholder="Skriv meddelande..." required>
+    
+    <select name="recipient_id">
+        <option value="">Public</option>
+        <?php
+        $users = $db->query("SELECT id, username FROM users")->fetchAll(PDO::FETCH_ASSOC);
+        foreach($users as $user) {
+            if($user['id'] != $_SESSION['user_id']) {
+                echo "<option value='{$user['id']}'>{$user['username']}</option>";
+            }
+        }
+        ?>
+    </select>
+
+    <input type="submit" value="Skicka">
 </form>
+
+<script>
+function loadMessages() {
+    fetch('load_messages.php')
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('chatBox').innerHTML = data;
+        document.getElementById('chatBox').scrollTop = document.getElementById('chatBox').scrollHeight;
+    });
+}
+
+// Load messages every 2 seconds
+setInterval(loadMessages, 2000);
+loadMessages();
+
+// Submit form without reloading
+document.getElementById('chatForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    let formData = new FormData(this);
+    fetch('chat.php', {
+        method: 'POST',
+        body: formData
+    }).then(() => {
+        document.getElementById('chatForm').reset();
+        loadMessages();
+    });
+});
+</script>
 </body>
 </html>
