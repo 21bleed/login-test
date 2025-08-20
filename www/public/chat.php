@@ -1,83 +1,52 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: index.php");
     exit;
 }
 ?>
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Chat Room</title>
     <style>
-        #chat-box { width: 600px; height: 300px; border: 1px solid #ccc; overflow-y: scroll; margin-bottom: 10px; }
-        #users { margin-top: 20px; }
+        body { font-family: Arial, sans-serif; }
+        #chat-box { width: 500px; height: 300px; border: 1px solid #ccc; overflow-y: scroll; padding: 10px; }
+        #message { width: 400px; }
     </style>
 </head>
 <body>
-    <h2>Public Chat</h2>
+    <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
     <div id="chat-box"></div>
-    <input type="text" id="message" placeholder="Type your message">
-    <button onclick="sendMessage()">Send</button>
+    <form id="chat-form" method="post" action="send_message.php">
+        <input type="text" name="message" id="message" required>
+        <button type="submit">Send</button>
+    </form>
 
-    <h3>Users:</h3>
-    <div id="users"></div>
+    <script>
+        async function loadMessages() {
+            const res = await fetch("load_messages.php");
+            const data = await res.json();
+            let chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML = "";
+            data.forEach(msg => {
+                chatBox.innerHTML += `<p><strong>${msg.username}:</strong> ${msg.message}</p>`;
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
-<script>
-let receiverId = null; // null = public chat
-
-function loadMessages() {
-    let url = "load_messages.php";
-    if (receiverId) {
-        url += "?receiver_id=" + receiverId;
-    }
-    fetch(url)
-        .then(res => res.text())
-        .then(data => {
-            document.getElementById("chat-box").innerHTML = data;
-        });
-}
-
-function sendMessage() {
-    const msg = document.getElementById("message").value;
-    if (!msg.trim()) return;
-
-    fetch("send_message.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "message=" + encodeURIComponent(msg) + "&receiver_id=" + (receiverId ? receiverId : "")
-    }).then(() => {
-        document.getElementById("message").value = "";
+        // auto refresh
+        setInterval(loadMessages, 2000);
         loadMessages();
-    });
-}
 
-function loadUsers() {
-    fetch("users.php")
-        .then(res => res.text())
-        .then(data => {
-            document.getElementById("users").innerHTML = data;
+        // prevent double sending
+        document.getElementById("chat-form").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+            await fetch("send_message.php", { method: "POST", body: formData });
+            this.reset();
         });
-}
-
-function openPrivateChat(id, username) {
-    receiverId = id;
-    document.querySelector("h2").innerText = "Private Chat with " + username;
-    loadMessages();
-}
-
-function openPublicChat() {
-    receiverId = null;
-    document.querySelector("h2").innerText = "Public Chat";
-    loadMessages();
-}
-
-// Auto update
-setInterval(loadMessages, 2000);
-setInterval(loadUsers, 5000);
-
-loadMessages();
-loadUsers();
-</script>
+    </script>
 </body>
 </html>

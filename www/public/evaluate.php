@@ -3,14 +3,10 @@ session_start();
 require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['q1'] ?? '';
-    $password = $_POST['q2'] ?? '';
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
 
-    if ($username === '' || $password === '') {
-        die("Fyll i både användarnamn och lösenord.");
-    }
-
-    $stmt = $db->prepare("SELECT * FROM users WHERE username=?");
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
     $stmt->execute([$username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -20,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: chat.php");
         exit;
     } else {
-        die("Felaktigt användarnamn eller lösenord.");
+        echo "Fel användarnamn eller lösenord.";
     }
 }
+?>

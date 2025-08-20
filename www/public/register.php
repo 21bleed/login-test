@@ -1,33 +1,17 @@
 <?php
-session_start();
 require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $username = trim($_POST['username']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    if ($username === '' || $password === '') {
-        die("Fyll i alla fält.");
-    }
+    $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    $stmt->execute([$username, $password]);
 
-    $stmt = $db->prepare("SELECT * FROM users WHERE username=?");
-    $stmt->execute([$username]);
-
-    if ($stmt->fetch()) {
-        die("Användaren finns redan.");
-    }
-
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $db->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-    $stmt->execute([$username, $hashedPassword]);
-
-    $_SESSION['user_id'] = $db->lastInsertId();
-    $_SESSION['username'] = $username;
-
-    header("Location: chat.php");
-    exit;
+    echo "User registered. <a href='index.php'>Login here</a>";
 }
 ?>
+
 
 <!doctype html>
 <html lang="sv">
