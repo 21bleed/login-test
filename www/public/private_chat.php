@@ -1,9 +1,6 @@
 <?php
 session_start();
-if(!isset($_SESSION['user_id'])){
-    header("Location: index.php");
-    exit;
-}
+if(!isset($_SESSION['user_id'])) exit;
 
 $db = new PDO('mysql:host=mariadb;dbname=Users;charset=utf8', 'pma', '12345');
 
@@ -11,7 +8,7 @@ $db = new PDO('mysql:host=mariadb;dbname=Users;charset=utf8', 'pma', '12345');
 $usersStmt = $db->query("SELECT id, username FROM users");
 $users = $usersStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Handle message sending
+// Handle private message sending
 if($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['message'])){
     $recipient = !empty($_POST['recipient']) ? (int)$_POST['recipient'] : null;
     $stmt = $db->prepare("INSERT INTO messages (user_id, recipient_id, message) VALUES (?, ?, ?)");
@@ -22,7 +19,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['message'])){
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat Room</title>
+<title>Private Chat</title>
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; }
 #messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
@@ -30,13 +27,12 @@ input, select, button { padding: 10px; margin: 5px 0; }
 </style>
 </head>
 <body>
-<h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></h2>
+<h2>Private Chat</h2>
 
 <div id="messages"></div>
 
 <form id="chatForm" method="post">
     <select name="recipient" id="recipient">
-        <option value="">Public Chat</option>
         <?php foreach($users as $user){
             if($user['id'] != $_SESSION['user_id']){
                 echo "<option value='{$user['id']}'>".htmlspecialchars($user['username'])."</option>";
@@ -48,12 +44,10 @@ input, select, button { padding: 10px; margin: 5px 0; }
     <input type="submit" value="Send">
 </form>
 
-<button id="privateChatBtn">Open Private Chat</button>
-
 <script>
-// Auto-refresh messages
 function loadMessages(){
-    fetch('load_messages.php')
+    let recipientId = document.getElementById('recipient').value;
+    fetch('load_private_messages.php?recipient=' + recipientId)
         .then(res => res.text())
         .then(data => {
             document.getElementById('messages').innerHTML = data;
@@ -61,19 +55,13 @@ function loadMessages(){
         });
 }
 setInterval(loadMessages, 2000);
-loadMessages(); // initial load
+loadMessages();
 
-// Send message without page refresh
 document.getElementById('chatForm').addEventListener('submit', function(e){
     e.preventDefault();
     let formData = new FormData(this);
-    fetch('chat.php', { method: 'POST', body: formData })
+    fetch('private_chat.php', { method: 'POST', body: formData })
         .then(() => { document.getElementById('message').value = ''; loadMessages(); });
-});
-
-// Open private chat in new window
-document.getElementById('privateChatBtn').addEventListener('click', function(){
-    window.open('private_chat.php', '_blank', 'width=500,height=600');
 });
 </script>
 </body>
