@@ -1,68 +1,51 @@
 <?php
 session_start();
-if(!isset($_SESSION['user_id'])) exit;
+if(!isset($_SESSION['username'])) header("Location: index.php");
+require_once "db.php";
 
-$db = new PDO('mysql:host=mariadb;dbname=Users;charset=utf8', 'pma', '12345');
+if(!isset($_GET['user'])) exit("No user specified");
 
-// Fetch users for private messaging
-$usersStmt = $db->query("SELECT id, username FROM users");
-$users = $usersStmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Handle private message sending
-if($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['message'])){
-    $recipient = !empty($_POST['recipient']) ? (int)$_POST['recipient'] : null;
-    $stmt = $db->prepare("INSERT INTO messages (user_id, recipient_id, message) VALUES (?, ?, ?)");
-    $stmt->execute([$_SESSION['user_id'], $recipient, $_POST['message']]);
-}
+$otherUser = $_GET['user'];
 ?>
+
 <!doctype html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Private Chat</title>
+<meta charset="utf-8">
+<title>Private Chat with <?=htmlspecialchars($otherUser)?></title>
+<script>
+function sendPrivateMessage() {
+    const msg = document.getElementById("pmessage").value;
+    if(msg.trim() === "") return;
+
+    fetch("send_private_message.php", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: "to=<?=urlencode($otherUser)?>&message=" + encodeURIComponent(msg)
+    }).then(() => { document.getElementById("pmessage").value = ""; });
+}
+
+function loadPrivateMessages() {
+    fetch("load_private_messages.php?user=<?=urlencode($otherUser)?>")
+    .then(res => res.text())
+    .then(data => {
+        document.getElementById("pchatbox").innerHTML = data;
+        document.getElementById("pchatbox").scrollTop = document.getElementById("pchatbox").scrollHeight;
+    });
+}
+
+setInterval(loadPrivateMessages, 1000);
+</script>
 <style>
-body { font-family: Arial, sans-serif; padding: 20px; }
-#messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
-input, select, button { padding: 10px; margin: 5px 0; }
+#pchatbox { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; }
+input[type=text] { width: 80%; padding: 8px; }
+button { padding: 8px; }
 </style>
 </head>
 <body>
-<h2>Private Chat</h2>
-
-<div id="messages"></div>
-
-<form id="chatForm" method="post">
-    <select name="recipient" id="recipient">
-        <?php foreach($users as $user){
-            if($user['id'] != $_SESSION['user_id']){
-                echo "<option value='{$user['id']}'>".htmlspecialchars($user['username'])."</option>";
-            }
-        } ?>
-    </select>
-    <br>
-    <input type="text" name="message" id="message" placeholder="Type your message">
-    <input type="submit" value="Send">
-</form>
-
-<script>
-function loadMessages(){
-    let recipientId = document.getElementById('recipient').value;
-    fetch('load_private_messages.php?recipient=' + recipientId)
-        .then(res => res.text())
-        .then(data => {
-            document.getElementById('messages').innerHTML = data;
-            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
-        });
-}
-setInterval(loadMessages, 2000);
-loadMessages();
-
-document.getElementById('chatForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    let formData = new FormData(this);
-    fetch('private_chat.php', { method: 'POST', body: formData })
-        .then(() => { document.getElementById('message').value = ''; loadMessages(); });
-});
-</script>
+<h3>Private Chat with <?=htmlspecialchars($otherUser)?></h3>
+<div id="pchatbox"></div>
+<input type="text" id="pmessage" placeholder="Type message">
+<button onclick="sendPrivateMessage()">Send</button>
 </body>
 </html>

@@ -1,8 +1,13 @@
 <?php
 session_start();
-require 'db.php';
+if(!isset($_SESSION['username'])) exit;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['message']) && isset($_SESSION['user_id'])) {
-    $stmt = $db->prepare("INSERT INTO messages (user_id, message, created_at) VALUES (?, ?, NOW())");
-    $stmt->execute([$_SESSION['user_id'], $_POST['message']]);
+require_once "db.php";
+
+if(isset($_POST['message'])){
+    $msg = trim($_POST['message']);
+    if($msg !== ""){
+        $stmt = $db->prepare("INSERT INTO messages (sender, message, private_to) VALUES (:sender, :msg, NULL)");
+        $stmt->execute([':sender' => $_SESSION['username'], ':msg' => $msg]);
+    }
 }
