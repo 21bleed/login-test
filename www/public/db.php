@@ -1,6 +1,6 @@
 <?php
 // db.php
-define('DB_USER', 'appuser');       // MariaDB username
+define('DB_USER', 'pma');       // MariaDB username
 define('DB_PASSWORD', '12345');  // Password
 define('DB_HOST', 'mariadb');    // Host (docker container name or server)
 define('DB_NAME', 'Users');      // Database name
