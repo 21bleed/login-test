@@ -1,26 +1,25 @@
-<!doctype html>
-<html>
-<head lang="sv"></head>
-<body>
-<h1>Logintest</h1>
-<h2>Resultat</h2>
 <?php
-     	$ans1 = $_POST['q1'];
-     	$ans2 = $_POST['q2'];
-     	$points = 0;
-     	
-     	if($ans1 == "test")
-           $points++;
-     	if($ans2 == "test2")
-           $points++;
+session_start();
+require 'db.php';
 
-		if($points == 2) {
-			echo("<p>Du är Inlogad</p>");
-		} else {
-    echo("<p>Fel användernamn eller lösenord</p>");
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+
+    if ($username === '' || $password === '') {
+        die("Please enter both username and password.");
+    }
+
+    $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt->execute([$username]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user && isset($user['password']) && password_verify($password, $user['password'])) {
+        $_SESSION['username'] = $username;
+        header("Location: chat.php");
+        exit;
+    } else {
+        die("Incorrect username or password.");
+    }
 }
-
 ?>
-<button><a href="index.php">go back</a></button>
-</body>
-</html>
