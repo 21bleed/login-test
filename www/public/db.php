@@ -1,9 +1,9 @@
 <?php
-// db.php
-define('DB_USER', 'pma');       // MariaDB username
-define('DB_PASSWORD', '12345');  // Password
-define('DB_HOST', 'mariadb');    // Host (docker container name or server)
-define('DB_NAME', 'Users');      // Database name
+// DB connection info
+define('DB_USER', 'pma');
+define('DB_PASSWORD', '12345');
+define('DB_HOST', 'mariadb');
+define('DB_NAME', 'Users');
 
 try {
     $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8';
@@ -12,4 +12,3 @@ try {
 } catch (PDOException $e) {
     die("Kunde inte ansluta till databasen: " . $e->getMessage());
 }
-?>
