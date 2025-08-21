@@ -430,7 +430,7 @@
             <button onclick="window.location.href='index.php'">🧅 Enter the Onion Converter 🧅</button>
             <button onclick="window.location.href='evaluate.php'">💚 View Swamp Results 💚</button>
             <button onclick="window.location.href='https://www.shrek.com'">🏰 Visit Shrek's Royal Domain 🏰</button>
-            <button onclick="window.location.href='https://www.youtube.com/watch?v=CwXOrWvPBPk'">🎵 All Star Anthem 🎵</button>
+            <button onclick="window.location.href='https://youtu.be/L_jWHffIx5E?feature=shared'">🎵 All Star Anthem 🎵</button>
             <button onclick="alert('You are now 127% more Shrek!')">🌟 Become Peak Shrek 🌟</button>
         </div>
         
