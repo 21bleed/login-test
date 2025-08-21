@@ -456,7 +456,7 @@
         
         <div class="shrek-audio">
             <audio controls>
-                <source src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae5b6.mp3" type="audio/mp3">
+                <source src="music/Smash Mouth - All Star (Official Music Video).mp3" type="audio/mpeg">
                 Your browser does not support the audio element.
             </audio>
             <div><em>🎵 Premium Swamp Soundtrack - Now with 200% more layers! 🎵</em></div>
