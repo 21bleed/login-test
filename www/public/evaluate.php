@@ -1,27 +1,20 @@
+<!doctype html>
+<html>
+<head lang="sv"></head>
+<body>
+<h1>Matematiktest</h1>
+<h2>Resultat</h2>
 <?php
-session_start();
-require 'db.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
-    $password = $_POST['password'] ?? '';
-
-    if ($username === '' || $password === '') {
-        echo "Username and password are required.";
-        exit;
-    }
-
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-    $stmt->execute([$username]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        header("Location: chat.php");
-        exit;
-    } else {
-        echo "Fel användarnamn eller lösenord.";
-    }
-}
+     	$ans1 = $_POST['q1'];
+     	$ans2 = $_POST['q2'];
+     	$points = 0;
+     	
+     	if($ans1 == 9)
+           $points++;
+     	if($ans2 == 15)
+           $points++;
+     	
+     	echo("<p>Du fick " . $points . " av 2 möjliga</p>");
 ?>
+</body>
+</html>
