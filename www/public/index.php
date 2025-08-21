@@ -1,19 +1,19 @@
 <!doctype html>
-<html>
-<head lang="sv"></head>
+<html lang="sv">
+<head>
+    <meta charset="utf-8">
+    <title>Valutakonverterare</title>
+</head>
 <body>
-<h1>Matematik-test</h1>
+<h1>Valutakonverterare</h1>
 <form action="evaluate.php" method="post">
-   <fieldset>
-       <legend>Frågor</legend>
-       <label>4 + 5 = </label>
-       <input type="text" name="q1">
-       <br>
-       <label>3 x 5 = </label>
-       <input type="text" name="q2">
-       <br>
-       <input type="submit" value="Rätta">
-   </fieldset>
+    <label>Ange belopp i dollar:</label>
+    <input type="text" name="amount">
+    <select name="conversion">
+        <option value="sek">Till SEK</option>
+        <option value="euro">Till EURO</option>
+    </select>
+    <input type="submit" value="Konvertera">
 </form>
 </body>
 </html>

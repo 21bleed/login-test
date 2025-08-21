@@ -1,20 +1,26 @@
-<!doctype html>
-<html>
-<head lang="sv"></head>
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="utf-8">
+    <title>Resultat</title>
+</head>
 <body>
-<h1>Matematiktest</h1>
-<h2>Resultat</h2>
+<h1>Resultat</h1>
 <?php
-     	$ans1 = $_POST['q1'];
-     	$ans2 = $_POST['q2'];
-     	$points = 0;
-     	
-     	if($ans1 == 9)
-           $points++;
-     	if($ans2 == 15)
-           $points++;
-     	
-     	echo("<p>Du fick " . $points . " av 2 möjliga</p>");
+$amount = $_POST['amount'] ?? '';
+$conversion = $_POST['conversion'] ?? '';
+
+if (is_numeric($amount)) {
+    if ($conversion == 'sek') {
+        $result = $amount * 9.59;
+        echo "<p>$amount $ = $result kr</p>";
+    } elseif ($conversion == 'euro') {
+        $result = $amount * 0.86;
+        echo "<p>$amount $ = $result €</p>";
+    }
+} else {
+    echo "<p>Fyll i ett giltigt tal.</p>";
+}
 ?>
 </body>
 </html>
