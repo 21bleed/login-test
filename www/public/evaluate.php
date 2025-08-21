@@ -22,5 +22,7 @@ if (is_numeric($amount)) {
     echo "<p>Fyll i ett giltigt tal.</p>";
 }
 ?>
+<button onclick="window.location.href='index.php'">Gå tillbaka</button>
+
 </body>
 </html>
